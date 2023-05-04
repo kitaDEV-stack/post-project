@@ -23,6 +23,17 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function posts(){
+        return $this->hasMany(Post::class);
+    }
+
+    public function delete(){
+        $this->posts()->delete();
+        return parent::delete();
+    }
+
+
+
     /**
      * The attributes that should be hidden for serialization.
      *
