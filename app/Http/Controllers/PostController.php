@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Catagory;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
@@ -32,9 +32,25 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePostRequest $request)
+    public function store(Request $request)
     {
-        //
+
+        $request->validate([
+            'title'=> 'required|max:255',
+            'description'=> 'required',
+            'catagory_id'=>'required',
+            'photo'=>'required|mimes:png,jpg,jpeg,webp'
+        ]);
+        $newPost = $request->all();
+        if($img = $request->file('photo')){
+            $path = "img/";
+            $ext = date('YmdHis') . "." . $img->getClientOriginalExtension();
+            $img->move($path,$ext);
+            $newPost['photo'] = $ext;
+        }
+        $newPost['user_id'] = Auth::user()->id;
+        Post::create($newPost);
+        return redirect()->route('posts.index')->with('success',"create Post successfully");
     }
 
     /**
@@ -42,7 +58,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        //
+
+        return view("posts.show", compact('post'));
     }
 
     /**

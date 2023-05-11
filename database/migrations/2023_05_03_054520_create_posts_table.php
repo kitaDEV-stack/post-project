@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(Catagory::class, 'catagory_id');
             $table->string('title');
             $table->text('description');
+            $table->string('photo')->nullable();
             $table->boolean('is_feature')->default(0);
             $table->timestamps();
         });
