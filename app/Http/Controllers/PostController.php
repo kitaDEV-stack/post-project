@@ -67,15 +67,34 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $catagories = Catagory::all();
+        return view('posts.edit',compact('post','catagories'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, Post $post)
+    public function update(Request $request, Post $post)
     {
-        //
+        $request->validate([
+            'title'=> 'required|max:255',
+            'description'=> 'required',
+            'catagory_id'=>'required',
+            'photo'=>'required|mimes:png,jpg,jpeg,webp'
+        ]);
+        $newPost = $request->all();
+        if($img = $request->file('photo')){
+            $path = "img/";
+            $ext = date('YmdHis') . "." . $img->getClientOriginalExtension();
+            $img->move($path,$ext);
+            $newPost['photo'] = $ext;
+        }else{
+            unset($newPost['photo']);
+        }
+        $post->update($newPost);
+
+        $newPost['user_id'] = Auth::user()->id;
+        return redirect()->route('posts.index')->with('success',"Update the Post successfully");
     }
 
     /**
@@ -83,6 +102,8 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+
+        return redirect()->route('posts.index')->with('success','Post deleted successfully.');
     }
 }
